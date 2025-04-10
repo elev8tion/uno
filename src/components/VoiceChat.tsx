@@ -79,8 +79,6 @@ const VoiceChat: React.FC = () => {
 
   return (
     <div className="voice-chat-container">
-      <h1>Voice Chat</h1>
-      
       {error && (
         <div className="error-message">
           {error}
