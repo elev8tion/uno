@@ -1,13 +1,66 @@
+/* Base styles */
 .voice-chat-container {
-  max-width: 600px;
+  width: 100%;
+  max-width: 28rem;
   margin: 0 auto;
-  padding: 20px;
-  text-align: center;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
+/* Button styles */
+button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+button:focus {
+  outline: none;
+  ring-width: 2px;
+  ring-offset-width: 2px;
+  ring-color: #3b82f6;
+}
+
+.start-button {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.start-button:hover {
+  background-color: #2563eb;
+}
+
+.stop-button {
+  background-color: #ef4444;
+  color: white;
+}
+
+.stop-button:hover {
+  background-color: #dc2626;
+}
+
+/* Error message */
 .error-message {
-  color: red;
-  margin: 10px 0;
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Metrics display */
+.metrics {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-top: 1rem;
+}
+
+/* Canvas styles */
+canvas {
+  width: 100%;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .user-state {
@@ -19,31 +72,4 @@
 
 .controls {
   margin: 20px 0;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.start-button {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.start-button:hover {
-  background-color: #45a049;
-}
-
-.stop-button {
-  background-color: #f44336;
-  color: white;
-}
-
-.stop-button:hover {
-  background-color: #da190b;
 } 

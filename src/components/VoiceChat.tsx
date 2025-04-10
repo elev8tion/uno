@@ -5,11 +5,19 @@ import '../styles/VoiceChat.css';
 import { UserState } from '../types';
 import { getToken, setToken, setUserId } from '../utils/auth';
 import { BACKEND_URL } from '../utils/constants';
+import AudioVisualizer from './AudioVisualizer';
 
 const VoiceChat: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [userState, setUserState] = useState<UserState | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [metrics, setMetrics] = useState({
+    latency: 0,
+    frameDrops: 0,
+    reconnects: 0
+  });
   const speechConnection = useRef<SpeechConnection | null>(null);
 
   useEffect(() => {
@@ -42,66 +50,89 @@ const VoiceChat: React.FC = () => {
 
     checkUserState();
 
+    // Initialize speech connection with audio level monitoring
     speechConnection.current = new SpeechConnection(
       (text: string) => {
-        // Handle transcript
         console.log('Transcript:', text);
       },
       (error: string) => {
-        // Handle error
-        console.error('Error:', error);
+        setError(error);
+        setIsRecording(false);
       }
     );
 
+    // Start metrics monitoring
+    const metricsInterval = setInterval(() => {
+      if (speechConnection.current && isRecording) {
+        // Simulate metrics for now - replace with actual metrics when available
+        setMetrics(prev => ({
+          latency: Math.random() * 50 + 20,
+          frameDrops: prev.frameDrops + (Math.random() > 0.9 ? 1 : 0),
+          reconnects: prev.reconnects
+        }));
+        // Simulate audio level - replace with actual audio level when available
+        setAudioLevel(Math.random());
+      }
+    }, 100);
+
     return () => {
+      clearInterval(metricsInterval);
       if (speechConnection.current) {
         speechConnection.current.disconnect();
       }
     };
   }, []);
 
-  const handleStart = async () => {
+  const handleToggleRecording = async () => {
     try {
-      await speechConnection.current?.connect();
-      setIsConnected(true);
-      setError(null);
+      if (isRecording) {
+        if (speechConnection.current) {
+          speechConnection.current.disconnect();
+        }
+        setIsRecording(false);
+      } else {
+        await speechConnection.current?.connect();
+        setIsRecording(true);
+        setIsConnected(true);
+        setError(null);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to connect');
-    }
-  };
-
-  const handleStop = () => {
-    if (speechConnection.current) {
-      speechConnection.current.disconnect();
-      setIsConnected(false);
+      setError(err instanceof Error ? err.message : 'Failed to toggle recording');
+      setIsRecording(false);
     }
   };
 
   return (
-    <div className="voice-chat-container">
-      {error && (
-        <div className="error-message">
-          {error}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
+        <div className="mb-4">
+          <AudioVisualizer level={audioLevel} />
         </div>
-      )}
 
-      {userState && (
-        <div className="user-state">
-          <p>Session: {userState.session_id}</p>
-          <p>Active: {userState.has_active_session ? 'Yes' : 'No'}</p>
+        <div className="flex flex-col items-center space-y-4">
+          <button
+            onClick={handleToggleRecording}
+            className={`px-4 py-2 rounded-lg font-semibold ${
+              isRecording
+                ? 'bg-red-500 hover:bg-red-600 text-white'
+                : 'bg-blue-500 hover:bg-blue-600 text-white'
+            }`}
+          >
+            {isRecording ? 'Stop Recording' : 'Start Recording'}
+          </button>
+
+          {error && (
+            <div className="text-red-500 text-sm mt-2">{error}</div>
+          )}
+
+          <div className="text-sm text-gray-600 mt-4">
+            <div>Connection: {isConnected ? 'Connected' : 'Disconnected'}</div>
+            <div>Latency: {metrics.latency.toFixed(2)}ms</div>
+            <div>Frame Drops: {metrics.frameDrops}</div>
+            <div>Reconnects: {metrics.reconnects}</div>
+            {userState && <div>Session: {userState.session_id}</div>}
+          </div>
         </div>
-      )}
-
-      <div className="controls">
-        {!isConnected ? (
-          <button onClick={handleStart} className="start-button">
-            Start Voice Chat
-          </button>
-        ) : (
-          <button onClick={handleStop} className="stop-button">
-            Stop Voice Chat
-          </button>
-        )}
       </div>
     </div>
   );
